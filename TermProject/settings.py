@@ -130,5 +130,5 @@ STATICFILES_DIRS = (
 
 
 #Just for ImageField
-MEDIA_ROOT = 'media/'
-MEDIA_URL = 'media/'
+MEDIA_ROOT = 'image/'
+MEDIA_URL = 'image/'
