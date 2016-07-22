@@ -91,28 +91,21 @@ def user_register(request):
         city = params.get('city', '')
         
         #一系列合法性判定
-        try:
-            if usernames == None or password1 == None or password2 == None or email == None or nickname == None or birthday == None or city == None:
-                #信息不完整
-                print('incomplete info')
-                return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':3})
-            if password1 != password2:
-                print('password1 is not equal to password2')
-                return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':1})
-            if len(User.objects.filter(username=usernames)):
-                #用户名已存在
-                print('username already exists')
-                return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':2})
-            #判定完毕
-            myUser = MyUser()
-            myUser.create_user(nickname, usernames, password1)
-            print(request.user)
-            return render(request, 'LinkAct/register_result_page.html', {'form':form,'error_index':0})
-
-        except:
-            #注册失败  
-            print('register failed')
-            return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':-1})
+	if usernames == None or password1 == None or password2 == None or email == None or nickname == None or birthday == None or city == None:
+	    #信息不完整
+	    print('incomplete info')
+	    return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':3})
+	if password1 != password2:
+	    print('password1 is not equal to password2')
+	    return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':1})
+	if len(User.objects.filter(username=usernames)):
+	    #用户名已存在
+	    print('username already exists')
+	    return render(request, 'LinkAct/register_result_page.html', {'form':form, 'error_index':2})
+	#判定完毕
+	myUser = MyUser()
+	myUser.create_user(nickname, usernames, password1)
+	return render(request, 'LinkAct/register_result_page.html', {'form':form,'error_index':0})
             
     return render(request, 'LinkAct/register_page.html', {'form':form})
         
