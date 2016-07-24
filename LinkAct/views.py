@@ -15,26 +15,11 @@ from .forms import PersonalInfoForm
 from .forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from LinkAct.models import Img
+from LinkAct.models import Img, Interest
 import string
 
 base_url = 'http://127.0.0.1:8000'
 
-_interests = {'1': '魔兽', 
-			 '2': '明星', 
-			 '3': '球类运动',
-			 '4': '游泳',
-			 '5': '小说',
-			 '6': '旅行',
-			 '7': '烹饪',
-			 '8': '星座',
-			 '9': '萌宠',
-			 '10': '养生',
-			 '11': 'coding',
-			 '12': '电影',
-			 '13': '动漫',
-			 '14': 'LOL',
-			 }
 
 
 #   search_class表示搜索类别，search_content表示搜索内容,search_content表示搜索的页码号，要在template中动态生成
@@ -133,7 +118,11 @@ def start_page_show(request):
 		{'user_name':user.username, 'has_login':has_login})
 	else:
 		has_login = True
-		img = Img.objects.all()[0]
+		imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
 		return render(request, 'LinkAct/start_page.html',
 		{'user_name':user.username, 'has_login':has_login, 'img': img})
 	#-----------登录判定----------#
@@ -157,7 +146,11 @@ def linker_page_show(request):
 		{'user_name':user.username, 'has_login':has_login})
 	else:
 		has_login = True
-		img = Img.objects.all()[0]
+		imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
 		return render(request, 'LinkAct/linker_page.html',
 		{'user_name':user.username, 'has_login':has_login, 'img': img})
 	#-----------登录判定----------#
@@ -180,7 +173,11 @@ def explore_page_show(request):
 		{'user_name':user.username, 'has_login':has_login})
 	else:
 		has_login = True
-		img = Img.objects.all()[0]
+		imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
 		return render(request, 'LinkAct/explore_page.html',
 		{'user_name':user.username, 'has_login':has_login, 'img':img})
 	#-----------登录判定----------#
@@ -203,7 +200,11 @@ def share_page_show(request):
 		{'user_name':user.username, 'has_login':has_login})
 	else:
 		has_login = True
-		img = Img.objects.all()[0]
+		imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
 		return render(request, 'LinkAct/share_page.html',
 		{'user_name':user.username, 'has_login':has_login, 'img': img})
 	#-----------登录判定----------#
@@ -226,7 +227,11 @@ def activities_page_show(request):
 		{'user_name':user.username, 'has_login':has_login})
 	else:
 		has_login = True
-		img = Img.objects.all()[0]
+		imgs = Img.objects.filter(id = user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
 		return render(request, 'LinkAct/activities_page.html',
 		{'user_name':user.username, 'has_login':has_login, 'img': img})
 	#-----------登录判定----------#
@@ -250,17 +255,20 @@ def user_register(request):
 		interests = params.getlist('interest', '')
 		#一系列合法性判定
 		
+
 		if usernames == None or password1 == None or password2 == None or email == None or nickname == None or birthday == None or city == None:
 			#信息不完整
 			print('incomplete info')
 			return render(request, 'LinkAct/result_page.html', {'error_index':3})
-		if password1 != password2:
-			print('password1 is not equal to password2')
-			return render(request, 'LinkAct/result_page.html', {'error_index':1})
 		if len(User.objects.filter(username=usernames)):
 			#用户名已存在
 			print('username already exists')
 			return render(request, 'LinkAct/result_page.html', {'error_index':2})
+		if password1 != password2:
+			#两次密码不匹配
+			print('password1 is not equal to password2')
+			return render(request, 'LinkAct/result_page.html', {'error_index':1})
+		
 		#判定完毕
 		myUser = MyUser()
 		myUser.create_user(usernames, password1, email, nickname, birthday, city, interests)
@@ -389,9 +397,6 @@ def check_personal_msg(request):
 			print('logout successfully')
 	#-----------登录判定----------#
 
-	#-----------------------------#
-	img = Img.objects.all()[0]
-	#-----------------------------#
 
 	if request.method == 'POST':
 		params = request.POST
@@ -400,12 +405,24 @@ def check_personal_msg(request):
 		obj.myuser.set_nickname(params.get('nickname', ''))
 		#obj.myuser.set_birthday(params.get('birthday', ''))
 		obj.myuser.set_city(params.get('city', ''))
+
+		imgs = Img.objects.filter(id = obj.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
 		
 		return render(request, 'LinkAct/result_page.html', {'user_name':request.user.username, 'has_login':True, 
 																'error_index':9, 'img': img})
 
 	#default render#
 	else :        
+		imgs = Img.objects.filter(id = request.user.myuser.get_head())
+		if len(imgs) != 0:
+			img = imgs[0]
+		else:
+			img = Img.objects.all()[0]
+
 		form = PersonalInfoForm()
 		form.email = request.user.email
 		form.nickname = request.user.myuser.nickname
@@ -419,7 +436,7 @@ def check_personal_msg(request):
 		for s in temp:
 			if len(interest_msg) != 0:
 				interest_msg += '，'
-			interest_msg += _interests[s]
+			interest_msg += Interest.objects.get(id = int(s)).get_content()
 		
 			
 
@@ -429,6 +446,7 @@ def check_personal_msg(request):
 		#print(form.birthday)
 		print(form.city)
 		print(form.email)
+
 
 		return render(request, 'LinkAct/user_info.html', {'form':form, 'has_login':True, 
 			'user_name':request.user.username, 'personal_msg':request.user, 'interest_msg':interest_msg, 'img': img})
@@ -445,7 +463,11 @@ def set_password_func(request):
 			print('logout successfully')
 
 	#-----------------------------#
-	img = Img.objects.all()[0]
+	imgs = Img.objects.filter(id = user.myuser.get_head())
+	if len(imgs) != 0:
+		img = imgs[0]
+	else:
+		img = Img.objects.all()[0]
 	#-----------------------------#
 
 	#应该修改这里#
@@ -514,55 +536,25 @@ def search_people(request):
 		endPos = int(search_page) * 10
 		result = answer[startPos:endPos]
 		return render(request, 'msgboard/explore_page.html', {'answer':answer})    
-		
-#查找活动   //搜索页面不同于主页面 默认每页10条，所有展示活动的界面都绑定此函数
-                #urls.py r'^searchActs/'    绝对路径为127.0.0.0.1/searchActs/      因而展示界面上的各详情链接为  <a href='../showActs/?id='+ {{ result[index].id }} + '&last_page=' + {{ current_url }}>
-                #“下一页”按钮链接应为<a href={{ next_page_url }}>
+
+
+								
+#查找活动   //搜索页面不同于主页面 默认每页10条
 def search_act(request):
-    if request.method == 'GET':
-        #搜索类别
-        search_class = request.GET['search_class']
-        #搜索内容
-        search_content = request.GET['search_content'] 
-        #搜索页码
-        search_page = request.GET['search_page']
-        #排序方法，为1时表示按照类别倒序排序，不搜索只排序
-        search_order = request.GET['search_order']
+	if request.method == 'GET':
+		search_class = request.GET['search_class']
+		search_content = request.GET['search_content'] 
+		search_page = request.GET['search_page']
 
-        if search_order == '1':
-            answer = Activity.objects.all().order_by(search_class)
+		#不同检索方式
+		if search_class == 'theme':
+			answer = Activity.objects.all()[0].activity_theme_filter(Activity.objects.all(), [search_class])
 
-        #不同检索方式
-        elif search_class == 'theme':
-            answer = Activity.objects.all()[0].activity_theme_filter(Activity.objects.all(), [search_class])
+		startPos = (int(search_page) - 1) * 10
+		endPos = int(search_page) * 10
+		result = answer[startPos:endPos]
 
-        elif search_class == '':
-
-        startPos = (int(search_page) - 1) * 10
-        endPos = int(search_page) * 10
-        result = answer[startPos:endPos]
-
-        temp_url = request.get_full_path()
-        next_page_url = request.path + "?search_class=" + search_class + "&search_content=" + search_content + "&search_order=" + search_order + "&search_page=" + (int(search_page) + 1)
-
-        return render(request, 'msgboard/searchActs.html', {'result':result, 'current_page':int(search_page)}, 'current_url':request.get_full_path(), 'next_page_url':next_page_url})
-
-
-#展示具体活动的界面，返回按钮的链接应为<a href={{ last_page }}>
-def show_act(request):
-    if request.method == 'GET':
-        index = int(request.GET['id'])
-        current_page = request.GET['last_page']
-        act_obj = Activity.objects.filter(id=index)
-
-        actForm = ActForm()
-
-        #是否活动发起人，决定了是否能修改活动信息
-        isCreator = False
-        if request.user.id == act_obj.creator:
-            isCreator = True
-
-        return render(request, 'LinkAct/showAct.html', {'form':actForm, 'act_obj':act_obj, 'last_page':current_page, 'isCreator':isCreator})
+		return render(request, 'msgboard/explore_page.html', {'result':result})
 
 #添加好友
 def request_for_friend(request):
@@ -572,9 +564,23 @@ def send_emails(email_from, email_to, title, content):
 	send_mail('wf', 'wf', "Louyk14@163.com", "Louyk14@163.com", fail_silently=False)
 
 
+
+def act_show_page(request):
+	if request.method == 'GET':
+		page_num = request.GET['page_num']
+		#按create_date排序    acts = sorted()
+
+		startPos = (int(page_num) - 1) * 10
+		endPos = int(page_num) * 10
+		answer = acts[startPos:endPos]
+		
+		return render(request, 'msgboard/show.html', {'answer':answer})
+
+
 # Create your views here.
 def upload_img(request):
 	if request.method == 'POST':
 		new_img = Img(img = request.FILES.get('img'))
 		new_img.save()
+		request.user.myuser.set_head(new_img.get_id())
 	return render(request, 'LinkAct/uploadimg.html')
