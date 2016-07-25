@@ -278,7 +278,7 @@ def user_register(request):
 			return render(request, 'LinkAct/result_page.html', {'error_index':2})
 		#判定完毕
 		myUser = MyUser()
-		myUser.create_user(usernames, password1, email, nickname, birthday, city, interests)
+		myUser.create_user(usernames, password1, email)
 		user = auth.authenticate(username=usernames, password=password1)
 		auth.login(request,user)
 		return render(request, 'LinkAct/result_page.html', {'error_index':0})
@@ -433,10 +433,11 @@ def check_personal_msg(request):
 			if len(interest_msg) != 0:
 				interest_msg += '，'
 			interest_msg += Interest.objects.get(id = int(s)).get_content()
-		
+		if interest_msg == "":
+			interest_msg = "未填写"
 			
 
-		# print(interest_msg)
+		print(interest_msg)
 		# print(form)
 		# print(form.nickname)
 		# #print(form.birthday)
